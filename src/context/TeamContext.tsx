@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
 
@@ -40,10 +40,11 @@ export function TeamProvider({ children }: { children: ReactNode }) {
   const [allTeams, setAllTeams] = useState<Team[]>([]);
   const [currentTeam, setCurrentTeamState] = useState<Team | null>(null);
   const [loading, setLoading] = useState(true);
+  const hasLoaded = useRef(false);
 
   const fetchTeams = useCallback(async () => {
     if (!user) return;
-    setLoading(true);
+    if (!hasLoaded.current) setLoading(true);
     try {
       const [teamsRes, membershipsRes] = await Promise.all([
         supabase.from('teams').select('*').order('created_at', { ascending: true }),
@@ -71,6 +72,7 @@ export function TeamProvider({ children }: { children: ReactNode }) {
       }
     } finally {
       setLoading(false);
+      hasLoaded.current = true;
     }
   }, [user]);
 
