@@ -6,7 +6,7 @@ Structured design critique for design teams. The PR model applied to design revi
 
 ## What it does
 
-LensFlare orchestrates the design critique lifecycle. Designers create Critique Requests (CRs), attach design artifacts (Figma, images, Loom, FigJam, URLs), assign reviewers, and track feedback through resolution. It's an orchestration layer that tracks the CR lifecycle, not an annotation tool.
+LensFlare orchestrates the design critique lifecycle. Designers create Critique Requests (CRs), attach design artifacts (Figma, images, Loom, FigJam, URLs), assign reviewers, and track feedback through to resolution. It's an orchestration layer that tracks the CR lifecycle, not an annotation tool.
 
 ### Core concepts
 
