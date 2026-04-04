@@ -4,14 +4,23 @@
 Design critique orchestration tool — the "Pull Request" for design review. Tracks the lifecycle of design critiques across tools (Figma, Loom, FigJam, prototypes).
 
 ## Current Status
-**Phase:** Lovable prototype complete, planning migration to independent stack
-**Last updated:** 2026-04-02
+**Phase:** Migration complete, deployed to Vercel
+**Last updated:** 2026-04-03
+
+## Deployment
+- **Live URL:** https://lens-flare.vercel.app/
+- **Domain:** lensflare.design (purchased, not yet pointed — blocked by work computer DNS)
+- **Hosting:** Vercel (Hobby tier, personal account markhazlewood42)
+- **Repo:** github.com/markhazlewood42/lens-flare (main branch)
+- **Backend:** Supabase (own project, own account)
+- **Edge Function:** `fetch-artifact-thumbnails` deployed via Supabase dashboard
 
 ## Key Dates
 - **PRD drafted:** 2026-03-30
 - **Lovable prototype built:** 2026-03-30 to 2026-03-31
 - **Source exported:** 2026-04-02
-- **Target MVP (independent):** TBD
+- **Migration completed:** 2026-04-03
+- **Deployed to Vercel:** 2026-04-03
 
 ## What Happened
 - 2026-03-30: DPG UX Team Time meeting surfaced critique workflow problems — low visibility, inconsistent async feedback, no accountability
@@ -19,19 +28,29 @@ Design critique orchestration tool — the "Pull Request" for design review. Tra
 - 2026-03-30: Named the tool **LensFlare** (lens = perspective, flare = signal). CRs (crit requests) remain the unit of work
 - 2026-03-30: Secured domain **lensflare.design**
 - 2026-03-30 to 2026-03-31: Built full working prototype in Lovable (well beyond initial PRD scope)
-- 2026-04-02: Exported full source from Lovable for local development and migration planning
+- 2026-04-02: Exported full source from Lovable. Analyzed codebase, compared with Lovable spec doc, created migration plan. Executed Phase 1 (all code changes — removed Lovable deps, build passes clean)
+- 2026-04-03: Executed Phases 2-4. Created Supabase project (own account), ran all 10 migrations, deployed edge function via dashboard. Set up Google OAuth (Cloud Console + Supabase auth). Tested locally — working. Deployed to Vercel at lens-flare.vercel.app. Added Vercel URL to Supabase redirect URLs and Google OAuth config.
+- 2026-04-03: Fixed bug where CR creation form inputs reset on window focus. Root cause: Supabase auth token refresh on focus triggered TeamContext.fetchTeams which set loading=true, causing TeamGate to unmount all children. Fix: only show loading spinner on initial load, not background refetches (TeamContext.tsx).
 
 ## Key Decisions
 - **Orchestration layer, not annotation tool** — integrates with Figma/Loom/FigJam rather than replacing them
 - **Day-one audience:** DPG UX team only (6-8 designers)
 - **Soft approval gates** — at least 1 review to close as Approved, but not blocking
 - **Visual annotation** deferred to Milestone 2
-- **Migration off Lovable** — want to work on this project outside Lovable, need to replace Lovable-specific dependencies
+- **Stack:** Vercel + Supabase + GitHub (personal account) — chosen for simplicity and Lovable compatibility
 
-## Current Stack (Lovable prototype)
+## Outstanding / Next Steps
+- [ ] Point `lensflare.design` domain to Vercel (needs personal machine, work DNS blocks .design TLD)
+- [ ] Update Supabase Site URL from localhost to `https://lensflare.design` once domain is live
+- [ ] End-to-end verification on production (Phase 5 from migration plan)
+- [ ] Team tables missing FK constraints and indexes (known gap from Lovable build)
+- [ ] `user_roles` table / `has_role()` not wired into RLS (client-side only for demo mode admin toggle)
+- [ ] Feature work beyond migration
+
+## Current Stack
 - **Frontend:** Vite + React 18 + TypeScript + Tailwind CSS + shadcn/ui (50+ Radix components)
-- **Backend:** Supabase (Lovable-hosted, project ID `xqwrgrwotnaudbshpbmw`)
-- **Auth:** Lovable Cloud Auth (`@lovable.dev/cloud-auth-js`) wrapping Supabase Auth — Google OAuth + email/password
+- **Backend:** Supabase (own project)
+- **Auth:** Supabase Auth — Google OAuth + email/password
 - **Edge Functions:** 1 Deno function (`fetch-artifact-thumbnails`) on Supabase Edge Functions
 - **Storage:** Supabase Storage bucket `artifact-uploads`
 - **Realtime:** Supabase Realtime on comments, cr_events, reviewers, critique_requests
@@ -39,7 +58,7 @@ Design critique orchestration tool — the "Pull Request" for design review. Tra
 - **Design:** Warm orange gradient (primary ~hsl(12,80%,58%)), full light/dark mode
 
 ## Features Implemented
-1. **Auth** — email/password + Google OAuth (via Lovable Cloud)
+1. **Auth** — email/password + Google OAuth
 2. **Teams** — create, join, switch, team-scoped CRs, admin roles, email invitations with auto-join on signup
 3. **CRs** — full CRUD, 6-state lifecycle (draft→open→in-review→changes-requested→approved→closed)
 4. **Design stages** — 5 stages with color coding (exploration, wireframe, high-fidelity, prototype, final-review)
@@ -56,7 +75,7 @@ Design critique orchestration tool — the "Pull Request" for design review. Tra
 15. **Realtime** — live updates via Supabase channels
 
 ## Database Schema (10 tables)
-- `profiles` — user profiles (auto-created on signup via trigger)
+- `profiles` — user profiles (auto-created on signup via trigger, email column removed in security hardening)
 - `user_roles` — admin/user roles (not yet wired into RLS)
 - `critique_requests` — the core CR entity
 - `artifacts` — links/files attached to CRs
@@ -68,24 +87,19 @@ Design critique orchestration tool — the "Pull Request" for design review. Tra
 - `team_invites` — email-based team invitations
 - 3 functions: `handle_new_user()`, `update_updated_at_column()`, `has_role()`
 - Full RLS on all tables + storage bucket
-- 10 migrations tracking schema evolution
+- 10 migrations (renamed with numbered prefixes for clarity)
 
-## Lovable-Specific Dependencies (to replace for migration)
-1. **`@lovable.dev/cloud-auth-js`** — OAuth wrapper, used in `src/integrations/lovable/index.ts` + `Auth.tsx`
-2. **`lovable-tagger`** — Vite dev plugin for component tagging
-3. **Supabase project** — entire backend on Lovable's Supabase instance
-4. **Lovable Cloud hosting** — deployment
-5. **Figma embed** — hardcoded `embed_host=lovable` in `CRDetail.tsx`
-
-## Migration Path (high-level)
-- [ ] Set up own Supabase project (or alternative: Postgres + Prisma, Neon, etc.)
-- [ ] Replay 10 migration SQL files to recreate schema
-- [ ] Replace Lovable Auth with direct Supabase Auth (or Clerk, Auth.js, etc.)
-- [ ] Move edge function to new host (Supabase self-hosted, Vercel serverless, etc.)
-- [ ] Create storage bucket on new provider
-- [ ] Remove `lovable-tagger`, update Vite config
-- [ ] Set up deployment (Vercel/Netlify)
-- [ ] Update env vars (VITE_SUPABASE_URL, VITE_SUPABASE_PUBLISHABLE_KEY)
+## Key Files
+| File | Purpose |
+|------|---------|
+| `status.md` | This file — project status |
+| `PRD.md` | Original PRD from 2026-03-30 |
+| `docs/lovable-spec-doc.md` | Lovable-generated spec (good for features, omits Lovable deps) |
+| `2026-04-02-lensflare-migration-session.md` | Migration session 1 notes (Phase 1 + planning) |
+| `.claude/plans/unified-marinating-mochi.md` | The approved migration plan |
+| `supabase/migrations/` | 10 numbered SQL migrations |
+| `vercel.json` | SPA rewrite rules |
+| `.env.example` | Template for env vars |
 
 ## File Structure
 ```
@@ -103,7 +117,7 @@ src/
     DemoTeamContext.tsx       — mock team data for demo mode
     OnboardingContext.tsx     — tour state
   pages/
-    Auth.tsx                  — login/signup + Google OAuth
+    Auth.tsx                  — login/signup + Google OAuth (direct Supabase)
     Dashboard.tsx             — card grid with filters
     Feed.tsx                  — list view (needs review / my CRs)
     CreateCR.tsx              — CR creation/edit form
@@ -125,13 +139,12 @@ src/
   integrations/
     supabase/client.ts        — Supabase client init
     supabase/types.ts         — generated DB types
-    lovable/index.ts          — Lovable Cloud Auth wrapper
   data/mockData.ts            — demo mode fixtures
   hooks/                      — use-mobile, use-toast
   lib/utils.ts                — cn() utility
 supabase/
   config.toml                 — project ID
-  migrations/                 — 10 SQL migrations
+  migrations/                 — 10 numbered SQL migrations
   functions/
     fetch-artifact-thumbnails/ — Deno edge function
 ```
@@ -139,3 +152,4 @@ supabase/
 ## Artifacts
 - PRD: `PRD.md` (this directory)
 - Source: full exported codebase (this directory)
+- Lovable spec: `docs/lovable-spec-doc.md`
