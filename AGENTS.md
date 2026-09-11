@@ -84,8 +84,8 @@ Copy `.env.example` to `.env.local` and fill in `VITE_SUPABASE_URL` and `VITE_SU
 - Supabase migrations are numbered sequentially (01-10). New migrations should continue the numbering.
 - All tables use RLS. New tables or policies must follow the existing pattern (authenticated users can read, authors/owners can write).
 
-### Known Lovable migration debt
+### Known gaps
 
-1. Supabase project ID `xqwrgrwotnaudbshpbmw` is Lovable-provisioned. May need migration.
-2. Figma embed `embed_host=lovable` in `CRDetail.tsx` should be updated.
-3. No CI/CD or hosting configured yet. Domain `lensflare.design` is secured.
+Migrated fully off Lovable (no remaining Lovable dependencies, project ID, or branding).
+
+1. No CI/CD or hosting configured yet. Domain `lensflare.design` is secured.

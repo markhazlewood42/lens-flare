@@ -78,10 +78,8 @@ bun run test:watch  # Vitest (watch mode)
 
 ## What's next
 
-This was originally a Lovable prototype. Known migration items:
-1. Supabase project `xqwrgrwotnaudbshpbmw` is the Lovable-provisioned instance. May need to migrate to a self-managed Supabase project.
-2. Figma embed in `CRDetail.tsx` uses `embed_host=lovable`. Should be updated.
-3. No CI/CD pipeline yet. Domain (lensflare.design) is secured but hosting isn't set up.
+This was originally a Lovable prototype, since fully migrated off Lovable (no remaining Lovable dependencies, project ID, or branding). Known open items:
+1. No CI/CD pipeline yet. Domain (lensflare.design) is secured but not pointed at hosting.
 
 ## Don't
 
