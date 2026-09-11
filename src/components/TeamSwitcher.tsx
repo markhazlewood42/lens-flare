@@ -1,11 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTeam } from '@/context/TeamContext';
-import { ChevronDown, Check, Plus } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ChevronDown, Check } from 'lucide-react';
 
 export default function TeamSwitcher() {
   const { userTeams, currentTeam, setCurrentTeam } = useTeam();
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -43,14 +41,6 @@ export default function TeamSwitcher() {
               {currentTeam?.id === team.id && <Check className="h-3.5 w-3.5 text-primary" />}
             </button>
           ))}
-          <div className="my-1 border-t border-border" />
-          <button
-            onClick={() => { navigate('/team-setup'); setOpen(false); }}
-            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-secondary/50 hover:text-foreground transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Join or create team
-          </button>
         </div>
       )}
     </div>

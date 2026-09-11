@@ -4,16 +4,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
 import { useTeam } from './TeamContext';
 
+// Public read-only demo: this context only ever reads from Supabase. There is
+// no logged-in user and no write UI, so the create/update/comment/review
+// mutation methods that used to live here have been removed entirely.
 export interface CRContextType {
   crs: CritiqueRequest[];
   currentUser: User;
   teamMembers: User[];
-  addCR: (cr: CritiqueRequest) => void;
-  updateCR: (crId: string, updates: { title: string; description: string; design_stage: string; project_tag?: string; artifacts: any[]; reviewerIds: string[] }) => void;
-  updateCRStatus: (crId: string, status: CRStatus) => void;
-  addComment: (crId: string, comment: Comment) => void;
-  resolveComment: (crId: string, commentId: string) => void;
-  markReviewDone: (crId: string, userId: string) => void;
   loading: boolean;
   refetch: () => void;
 }
@@ -130,119 +127,11 @@ export function CRProvider({ children }: { children: ReactNode }) {
   }, [currentTeam]);
 
   useEffect(() => {
-    if (profile) fetchData();
-  }, [profile, fetchData]);
-
-  // Realtime subscriptions
-  useEffect(() => {
-    if (!profile) return;
-
-    const channel = supabase
-      .channel('cr-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => fetchData())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'cr_events' }, () => fetchData())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'reviewers' }, () => fetchData())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'critique_requests' }, () => fetchData())
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [profile, fetchData]);
-
-  const addCR = useCallback(async (cr: CritiqueRequest) => {
-    const { data: newCR, error } = await supabase.from('critique_requests').insert({
-      title: cr.title, description: cr.description, author_id: cr.author.id,
-      status: cr.status, design_stage: cr.design_stage, project_tag: cr.project_tag,
-      team_id: currentTeam?.id || null,
-    }).select().single();
-    if (error || !newCR) return;
-    if (cr.artifacts.length > 0) {
-      await supabase.from('artifacts').insert(cr.artifacts.map((a, i) => ({
-        cr_id: newCR.id, type: a.type, url: a.url, thumbnail_url: a.thumbnail_url, title: a.title, sort_order: i,
-      })));
-    }
-    if (cr.reviewers.length > 0) {
-      await supabase.from('reviewers').insert(cr.reviewers.map(r => ({
-        cr_id: newCR.id, user_id: r.user_id, status: 'pending',
-      })));
-    }
-    // Fetch thumbnails in background
-    supabase.functions.invoke('fetch-artifact-thumbnails', { body: { cr_id: newCR.id } }).then(() => fetchData());
-    fetchData();
-  }, [fetchData, currentTeam]);
-
-  const updateCR = useCallback(async (crId: string, updates: { title: string; description: string; design_stage: string; project_tag?: string; artifacts: any[]; reviewerIds: string[] }) => {
-    // Update CR fields
-    await supabase.from('critique_requests').update({
-      title: updates.title,
-      description: updates.description,
-      design_stage: updates.design_stage,
-      project_tag: updates.project_tag || null,
-      updated_at: new Date().toISOString(),
-    }).eq('id', crId);
-
-    // Sync artifacts: delete old, insert new
-    await supabase.from('artifacts').delete().eq('cr_id', crId);
-    if (updates.artifacts.length > 0) {
-      await supabase.from('artifacts').insert(updates.artifacts.map((a: any, i: number) => ({
-        cr_id: crId, type: a.type, url: a.url, thumbnail_url: a.thumbnail_url || null, title: a.title || null, sort_order: i,
-      })));
-    }
-
-    // Sync reviewers: delete old, insert new
-    await supabase.from('reviewers').delete().eq('cr_id', crId);
-    if (updates.reviewerIds.length > 0) {
-      await supabase.from('reviewers').insert(updates.reviewerIds.map(uid => ({
-        cr_id: crId, user_id: uid, status: 'pending',
-      })));
-    }
-
-    // Fetch thumbnails in background
-    supabase.functions.invoke('fetch-artifact-thumbnails', { body: { cr_id: crId } }).then(() => fetchData());
     fetchData();
   }, [fetchData]);
-
-  const updateCRStatus = useCallback(async (crId: string, status: CRStatus) => {
-    await supabase.from('critique_requests').update({ status }).eq('id', crId);
-    fetchData();
-  }, [fetchData]);
-
-  const addComment = useCallback(async (crId: string, comment: Comment) => {
-    await supabase.from('comments').insert({
-      cr_id: crId, author_id: comment.author.id,
-      parent_id: comment.parent_id || null, artifact_id: comment.artifact_id || null,
-      body: comment.body, comment_type: comment.comment_type,
-    });
-    fetchData();
-  }, [fetchData]);
-
-  const resolveComment = useCallback(async (crId: string, commentId: string) => {
-    const { data: c } = await supabase.from('comments').select('resolved').eq('id', commentId).single();
-    if (!c) return;
-    await supabase.from('comments').update({
-      resolved: !c.resolved, resolved_by: c.resolved ? null : currentUser.id,
-    }).eq('id', commentId);
-    fetchData();
-  }, [fetchData, currentUser.id]);
-
-  const markReviewDone = useCallback(async (crId: string, userId: string) => {
-    const { data: r } = await supabase.from('reviewers').select('status').eq('cr_id', crId).eq('user_id', userId).single();
-    if (!r) return;
-    const wasReviewed = r.status === 'reviewed';
-    await supabase.from('reviewers').update({
-      status: wasReviewed ? 'pending' : 'reviewed', reviewed_at: new Date().toISOString(),
-    }).eq('cr_id', crId).eq('user_id', userId);
-    await supabase.from('cr_events').insert({
-      cr_id: crId, type: wasReviewed ? 'review_undone' : 'review_completed', actor_id: userId,
-    });
-    fetchData();
-  }, [fetchData]);
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
   return (
-    <CRContext.Provider value={{ crs, currentUser, teamMembers, addCR, updateCR, updateCRStatus, addComment, resolveComment, markReviewDone, loading, refetch: fetchData }}>
+    <CRContext.Provider value={{ crs, currentUser, teamMembers, loading, refetch: fetchData }}>
       {children}
     </CRContext.Provider>
   );

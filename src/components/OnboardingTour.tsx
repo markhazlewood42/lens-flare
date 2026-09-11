@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { useOnboarding, TourType } from '@/context/OnboardingContext';
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 
 interface TourStep {
@@ -81,7 +80,7 @@ interface Rect {
 
 export default function OnboardingTour() {
   const { tourActive, activeTour, stopTour, startTour } = useOnboarding();
-  const { profile, user } = useAuth();
+  const { profile } = useAuth();
   const [step, setStep] = useState(0);
   const [targetRect, setTargetRect] = useState<Rect | null>(null);
   const [popoverStyle, setPopoverStyle] = useState<React.CSSProperties>({});
@@ -151,15 +150,11 @@ export default function OnboardingTour() {
     setStep(0);
   };
 
-  const handleDontShowAgain = async () => {
+  const handleDontShowAgain = () => {
+    // Public read-only demo: there's no session to persist this against, so
+    // "don't show again" is just a client-side dismissal for this visit.
     stopTour();
     setStep(0);
-    if (user) {
-      await supabase
-        .from('profiles')
-        .update({ onboarding_dismissed: true } as any)
-        .eq('id', user.id);
-    }
   };
 
   const handleNext = () => {
