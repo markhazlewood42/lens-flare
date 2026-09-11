@@ -1,3 +1,13 @@
+---
+type: status
+title: LensFlare — Project Status
+project: lens-flare
+created: 2026-03-31
+updated: 2026-08-26
+tags: [status]
+memory: [project_lensflare]
+---
+
 # LensFlare
 
 ## Overview

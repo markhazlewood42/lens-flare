@@ -1,3 +1,13 @@
+---
+type: project-doc
+title: LensFlare — Product and Architecture Document
+project: lens-flare
+created: 2026-03-31
+updated: 2026-08-26
+tags: [spec, architecture]
+memory: [project_lensflare]
+---
+
 # LensFlare — Product & Architecture Document
 
 > **Version:** 1.0  

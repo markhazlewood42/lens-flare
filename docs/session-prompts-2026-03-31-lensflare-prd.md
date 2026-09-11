@@ -1,3 +1,12 @@
+---
+type: project-doc
+title: Session Prompts — LensFlare PRD
+project: lens-flare
+created: 2026-03-31
+updated: 2026-08-26
+tags: [prompts]
+---
+
 # Session Prompts: LensFlare PRD
 **Date:** 2026-03-31
 **Session:** Crit Request (CR) tool PRD

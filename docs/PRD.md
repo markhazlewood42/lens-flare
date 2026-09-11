@@ -1,3 +1,13 @@
+---
+type: project-doc
+title: LensFlare PRD
+project: lens-flare
+created: 2026-03-31
+updated: 2026-08-26
+tags: [prd, design-critique]
+memory: [project_lensflare]
+---
+
 # PRD: LensFlare — Design Critique as a First-Class Workflow
 
 > **Status:** Draft v3 — name finalized

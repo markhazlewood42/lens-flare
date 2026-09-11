@@ -1,3 +1,13 @@
+---
+type: project-doc
+title: LensFlare — Migration Session Notes
+project: lens-flare
+created: 2026-04-02
+updated: 2026-08-26
+tags: [migration, session-notes]
+memory: [project_lensflare]
+---
+
 # LensFlare Migration Session — 2026-04-02
 
 ## What happened this session

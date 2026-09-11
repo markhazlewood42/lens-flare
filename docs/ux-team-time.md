@@ -1,3 +1,13 @@
+---
+type: source
+title: DPG UX Team Time — Meeting Notes (Mar 30)
+project: lens-flare
+created: 2026-03-30
+updated: 2026-08-26
+tags: [meeting, research]
+note: Raw meeting transcript.
+---
+
 Meeting Title: DPG UX Team Time (standup, critique)
 Date: Mar 30
 Meeting participants: Hina Shah, Jono Lee, Farheen Malik, Roary, TJ Serkes, Pat Clough
