@@ -45,18 +45,29 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
 
 const RESET = process.env.SEED_RESET === '1';
 
-// A handful of real, stable Unsplash photos to stand in for every artifact.
-// Live Figma/Loom URLs in mockData.ts are fake (figma.com/design/abc123
-// etc.) and would render as broken embeds in production — every seeded
-// artifact becomes a static image instead, regardless of its original type.
-const PLACEHOLDER_IMAGES = [
-  'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=800',
-  'https://images.unsplash.com/photo-1512758017271-d7b84c2113f1?w=800',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
-  'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
-  'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800',
-  'https://images.unsplash.com/photo-1559028012-481c04fa702d?w=800',
-];
+// Real, stable Unsplash photos to stand in for every artifact, chosen to
+// match what that specific artifact is (a dashboard screen, a whiteboard
+// wireframe session, a design-tool workspace) rather than generic stock
+// photos. Live Figma/Loom URLs in mockData.ts are fake (figma.com/design/
+// abc123 etc.) and would render as broken embeds in production — every
+// seeded artifact becomes a static image instead, regardless of its
+// original type. Keyed by mock artifact id (a1..a12) so each CR's artifacts
+// look distinct instead of cycling through a handful of repeats.
+const PLACEHOLDER_IMAGES: Record<string, string> = {
+  a1: 'https://images.unsplash.com/photo-1526628953301-3e589a6a8b74?w=800', // dashboard screen — Version Detail Page desktop
+  a2: 'https://images.unsplash.com/photo-1686061592689-312bbfb5c055?w=800', // analytics screen — walkthrough recording
+  a3: 'https://images.unsplash.com/photo-1532102235608-dc8fc689c9ab?w=800', // whiteboard sketch — user flow diagram
+  a4: 'https://images.unsplash.com/photo-1546437593-3d0258c28037?w=800', // whiteboard sketch — onboarding stepper wireframe
+  a5: 'https://images.unsplash.com/photo-1546017535-ed107a04ac7b?w=800', // sketching/notes — competitor analysis
+  a6: 'https://images.unsplash.com/photo-1698434156088-a80e7bcdd198?w=800', // whiteboard planning — IA mapping
+  a7: 'https://images.unsplash.com/photo-1763718528755-4bca23f82ac3?w=800', // dashboard screen — dashboard exploration
+  a8: 'https://images.unsplash.com/photo-1581291518570-03a26006fb21?w=800', // sketch — data architecture
+  a9: 'https://images.unsplash.com/photo-1726186029199-218e58c9fb41?w=800', // design-tool workspace — live prototype
+  a10: 'https://images.unsplash.com/photo-1625335524754-9e26bc4aecc6?w=800', // design-tool workspace — figma specs
+  a11: 'https://images.unsplash.com/photo-1612556810513-617a5a892418?w=800', // design-tool workspace — prototype walkthrough
+  a12: 'https://images.unsplash.com/photo-1625296276703-3fbc924f07b5?w=800', // dashboard/UI screen — error state library
+};
+const FALLBACK_IMAGE = PLACEHOLDER_IMAGES.a1;
 
 function slugify(name: string) {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -136,7 +147,6 @@ async function main() {
   }
 
   // 3. Critique requests + artifacts + reviewers + comments
-  let imageIndex = 0;
   for (const cr of MOCK_CRS) {
     const { data: newCR, error: crError } = await supabase.from('critique_requests').insert({
       title: cr.title,
@@ -156,7 +166,7 @@ async function main() {
       const { error } = await supabase.from('artifacts').insert(cr.artifacts.map((a, i) => ({
         cr_id: newCR.id,
         type: 'image' as const,
-        url: PLACEHOLDER_IMAGES[imageIndex++ % PLACEHOLDER_IMAGES.length],
+        url: PLACEHOLDER_IMAGES[a.id] || FALLBACK_IMAGE,
         thumbnail_url: null,
         title: a.title,
         sort_order: i,

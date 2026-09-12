@@ -30,7 +30,7 @@ export const MOCK_CRS: CritiqueRequest[] = [
     artifacts: [
       { id: 'a1', cr_id: 'cr-1', type: 'figma', url: 'https://figma.com/design/abc123', title: 'Version Detail - Desktop', sort_order: 0 },
       { id: 'a2', cr_id: 'cr-1', type: 'loom', url: 'https://loom.com/share/xyz789', title: 'Walkthrough recording', sort_order: 1 },
-      { id: 'a3', cr_id: 'cr-1', type: 'image', url: 'https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=800', title: 'User flow diagram', sort_order: 2 },
+      { id: 'a3', cr_id: 'cr-1', type: 'image', url: 'https://images.unsplash.com/photo-1532102235608-dc8fc689c9ab?w=800', title: 'User flow diagram', sort_order: 2 },
     ],
     reviewers: [
       { cr_id: 'cr-1', user_id: '2', user: TEAM_MEMBERS[1], status: 'reviewed', reviewed_at: '2026-03-29T14:00:00Z' },
@@ -69,7 +69,7 @@ export const MOCK_CRS: CritiqueRequest[] = [
     project_tag: 'Developer Onboarding',
     artifacts: [
       { id: 'a4', cr_id: 'cr-2', type: 'figma', url: 'https://figma.com/design/def456', title: 'Onboarding stepper flow', sort_order: 0 },
-      { id: 'a5', cr_id: 'cr-2', type: 'image', url: 'https://images.unsplash.com/photo-1512758017271-d7b84c2113f1?w=800', title: 'Competitor analysis', sort_order: 1 },
+      { id: 'a5', cr_id: 'cr-2', type: 'image', url: 'https://images.unsplash.com/photo-1546017535-ed107a04ac7b?w=800', title: 'Competitor analysis', sort_order: 1 },
     ],
     reviewers: [
       { cr_id: 'cr-2', user_id: '1', user: TEAM_MEMBERS[0], status: 'pending' },
@@ -98,7 +98,7 @@ export const MOCK_CRS: CritiqueRequest[] = [
     design_stage: 'exploration',
     project_tag: 'Platform Navigation',
     artifacts: [
-      { id: 'a6', cr_id: 'cr-3', type: 'image', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800', title: 'IA mapping', sort_order: 0 },
+      { id: 'a6', cr_id: 'cr-3', type: 'image', url: 'https://images.unsplash.com/photo-1698434156088-a80e7bcdd198?w=800', title: 'IA mapping', sort_order: 0 },
     ],
     reviewers: [],
     comments: [],
@@ -117,7 +117,7 @@ export const MOCK_CRS: CritiqueRequest[] = [
     project_tag: 'Data Hub',
     artifacts: [
       { id: 'a7', cr_id: 'cr-4', type: 'figma', url: 'https://figma.com/design/ghi789', title: 'Dashboard exploration', sort_order: 0 },
-      { id: 'a8', cr_id: 'cr-4', type: 'image', url: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800', title: 'Data architecture sketch', sort_order: 1 },
+      { id: 'a8', cr_id: 'cr-4', type: 'image', url: 'https://images.unsplash.com/photo-1581291518570-03a26006fb21?w=800', title: 'Data architecture sketch', sort_order: 1 },
     ],
     reviewers: [
       { cr_id: 'cr-4', user_id: '1', user: TEAM_MEMBERS[0], status: 'pending' },
