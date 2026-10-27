@@ -3,9 +3,9 @@ type: status
 title: LensFlare — Project Status
 project: lens-flare
 created: 2026-03-31
-updated: 2026-09-11
+updated: 2026-09-12
 tags: [status]
-memory: [project_lensflare]
+memory: [project-lensflare]
 ---
 
 # LensFlare
@@ -14,8 +14,8 @@ memory: [project_lensflare]
 Design critique orchestration tool — the "Pull Request" for design review. Tracks the lifecycle of design critiques across tools (Figma, Loom, FigJam, prototypes).
 
 ## Current Status
-**Phase:** Rebuilt as a public, read-only resume demo. Seeded and verified; final Vercel deploy is on Mark.
-**Last updated:** 2026-09-11
+**Phase:** Rebuilt as a public, read-only resume demo. Seeded (twice — demo images upgraded 2026-09-12) and pushed; deploy trigger fired, final live check is on Mark.
+**Last updated:** 2026-09-12
 
 ## Deployment
 - **Live URL:** https://lens-flare.vercel.app/ (new Vercel project created 2026-09-11; env vars set; deploy pending on Mark's side)
@@ -46,6 +46,11 @@ Design critique orchestration tool — the "Pull Request" for design review. Tra
   - Replaced the leftover Lovable favicon with an SVG reproduction of the header's flame mark (same gradient, same Lucide path).
   - Full Lovable remnant sweep: removed `og:image`/`twitter:image`/`twitter:site` (pointed at a lovable.app CDN screenshot + `@Lovable`) from `index.html`; fixed `playwright.config.ts`/`playwright-fixture.ts`, which imported a `lovable-agent-playwright-config` package that was never even a listed dependency (dead/broken code); corrected `CLAUDE.md`/`AGENTS.md`'s stale "Lovable migration debt" sections.
   - Discovered Supabase's newer API key naming during this work: `sb_publishable_...` (formerly "anon key") and `sb_secret_...` (formerly "service_role key") — same roles, new prefixes, shown in the dashboard's Project Settings → API page.
+- 2026-09-12: **Replaced generic stock photos with content-matched demo images.** The 6 Unsplash placeholders seeded the day before were generic office/laptop photos cycling across all 12 artifacts, unrelated to what each artifact actually was.
+  - `scripts/seed-demo-data.ts`: replaced the 6-photo cycling `PLACEHOLDER_IMAGES` array with a 12-entry map keyed by mock artifact id (`a1`..`a12`), each picked to resemble its artifact's real content — dashboard/analytics screens for high-fidelity UI artifacts, whiteboard/sketch photos for wireframe and exploration-stage artifacts, design-tool-workspace shots for Figma/prototype artifacts.
+  - `src/data/mockData.ts`: updated the 4 artifacts already typed `'image'` (a3, a5, a6, a8) to match, so the (unused-at-runtime) source data stays consistent with the seed script.
+  - Reseeded the live DB with `SEED_RESET=1` using the pasted `sb_secret_...` key (not persisted anywhere).
+  - Committed (`ab4ed29`) and pushed to `main` to trigger the Vercel deploy.
 
 ## Key Decisions
 - **Orchestration layer, not annotation tool** — integrates with Figma/Loom/FigJam rather than replacing them
@@ -55,7 +60,7 @@ Design critique orchestration tool — the "Pull Request" for design review. Tra
 - **Default `*.vercel.app` URL, not `lensflare.design`** — no DNS/custom-domain work needed for a resume link.
 
 ## Outstanding / Next Steps
-- [ ] Mark to trigger the actual Vercel deploy (project + env vars already set as of 2026-09-11) and do a final incognito-window check of the live URL
+- [ ] Confirm the Vercel deploy triggered by the 2026-09-12 push (commit `ab4ed29`) actually landed, and do a final incognito-window check of the live URL — including that the new artifact images render correctly
 - [ ] Team tables (`teams`, `team_members`) still missing FK constraints/indexes — harmless for a static read-only demo, not worth fixing unless this becomes a live product again
 - [ ] `user_roles` / `has_role()` unused now that there's no admin toggle — could be dropped in a future migration, not urgent
 - [ ] If this is ever turned back into a live, editable product: the whole auth/write layer would need to be rebuilt from scratch, not un-deleted — see the 2026-09-11 entry above for exactly what was removed

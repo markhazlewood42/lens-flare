@@ -5,7 +5,7 @@ project: lens-flare
 created: 2026-03-31
 updated: 2026-08-26
 tags: [prd, design-critique]
-memory: [project_lensflare]
+memory: [project-lensflare]
 ---
 
 # PRD: LensFlare — Design Critique as a First-Class Workflow
